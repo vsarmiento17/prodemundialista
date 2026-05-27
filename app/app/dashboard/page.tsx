@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ywueyjwvkzjcifvtbrbo.supabase.co'!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_d7PCB7GhFK2zSAtCSGrorg_suL-Xeb8'!)
 
 export default function Dashboard() {
   const [leaders, setLeaders] = useState<any[]>([])
