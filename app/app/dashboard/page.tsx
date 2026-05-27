@@ -40,4 +40,4 @@ export default function Dashboard() {
       </div>
     </div>
   )
-}
+}// Este código muestra un dashboard con una tabla de líderes globales, ordenados por puntos. Se obtiene la información de la tabla 'profiles' en Supabase y se muestra en una tabla estilizada.
