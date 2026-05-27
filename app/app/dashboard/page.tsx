@@ -9,7 +9,7 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://y
 export default function Dashboard() {
   const [leaders, setLeaders] = useState<any[]>([])
 
-  useEffect(() => {
+  useEffect(() => { //
     async function fetchLeaders() {
       const { data } = await supabase.from('profiles').select('*').order('points', { ascending: false })
       setLeaders(data || [])
