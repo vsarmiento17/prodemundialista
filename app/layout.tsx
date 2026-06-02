@@ -1,6 +1,14 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
+import Link from 'next/link'
+import { ToastProvider } from "@/app/components/ToastProvider"
+
+import { Inter } from "next/font/google";
+import { LanguageProvider } from "@/app/context/LanguageContext";
+import { Navbar } from "./components/Navbar";
+
+const inter = Inter({ subsets: ["latin"] });
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,8 +34,7 @@ export const metadata: Metadata = {
 }
 
 
-import Link from 'next/link'
-import { ToastProvider } from './components/ToastProvider'
+
 
 export default function RootLayout({
   children,
@@ -42,7 +49,15 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#001D4A" />
       </head>
-      <body className="min-h-full flex flex-col bg-gray-50">
+      <body className={inter.className}>
+        <ToastProvider>
+          <LanguageProvider>
+            {/* El Navbar ahora aparecerá en todas las páginas */}
+            <Navbar />
+            {children}
+          </LanguageProvider>
+        </ToastProvider>
+      {/* <body className="min-h-full flex flex-col bg-gray-50">
         <ToastProvider>
           <nav className="w-full bg-[#001D4A] text-white shadow-lg">
             <div className="max-w-7xl mx-auto px-6 py-4 flex gap-6 items-center">
@@ -51,7 +66,7 @@ export default function RootLayout({
             </div>
           </nav>
           <main className="flex-1">{children}</main>
-        </ToastProvider>
+        </ToastProvider> */}
       </body>
     </html>
   )

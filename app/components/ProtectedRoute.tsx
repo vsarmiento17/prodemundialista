@@ -1,47 +1,43 @@
 'use client'
+import { useEffect, useState, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { getSupabase } from '@/app/lib/supabase';
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { getSupabase } from '@/app/lib/supabase'
-
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const supabase = getSupabase()
-  const [loading, setLoading] = useState(true)
-  const [authenticated, setAuthenticated] = useState(false)
+export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    async function checkAuth() {
+    const checkAuth = async () => {
+      const supabase = getSupabase();
       if (!supabase) {
-        router.push('/login')
-        return
+        router.push('/login');
+        return;
       }
-
-      const { data } = await supabase.auth.getSession()
-
+      
+      const { data } = await supabase.auth.getSession();
+      
       if (!data.session) {
-        router.push('/login')
+        router.push('/login');
       } else {
-        setAuthenticated(true)
+        setAuthenticated(true);
       }
-
-      setLoading(false)
-    }
-
-    checkAuth()
-  }, [supabase, router])
+      setLoading(false);
+    };
+    
+    checkAuth();
+  }, [router]);
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#001D4A]">
-        <p className="text-white text-xl">Cargando...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-[#001D4A] font-bold text-xl">
+        Validando credenciales de acceso...
       </div>
-    )
+    );
   }
 
-  if (!authenticated) {
-    return null
-  }
+  if (!authenticated) return null;
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
