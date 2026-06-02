@@ -1,12 +1,22 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useToast } from '../components/ToastProvider'
 import { useRouter } from 'next/navigation'
 import { LogOut } from 'lucide-react'
 import { getSupabase } from '@/app/lib/supabase'
 import { ProtectedRoute } from '@/app/components/ProtectedRoute'
 import { LeaderboardView } from '@/app/components/LeaderboardView'
 import { TabNavigation } from '@/app/components/TabNavigation'
+
+interface Match {
+  id: number
+  home_team: string
+  away_team: string
+  match_date: string
+  home_score: number | null
+  away_score: number | null
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -20,14 +30,16 @@ interface Leader {
   points_daily: number
 }
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const router = useRouter()
   const supabase = getSupabase()
+  const { showToast } = useToast()
 
   const [activeTab, setActiveTab] = useState('Global')
   const [leaders, setLeaders] = useState<Leader[]>([])
   const [loading, setLoading] = useState(true)
   const [userEmail, setUserEmail] = useState('')
+  const [nextMatches, setNextMatches] = useState<Match[]>([])
 
   const tabs = ['Global', 'Semanal', 'Mensual', 'Diario']
 
@@ -50,8 +62,17 @@ export default function Dashboard() {
         .select('*')
         .order('points_global', { ascending: false })
         .limit(20)
-
       setLeaders((data as Leader[]) || [])
+
+      // Fetch próximos partidos (los siguientes 3)
+      const { data: matchesData } = await supabase
+        .from('matches')
+        .select('*')
+        .gt('match_date', new Date().toISOString())
+        .order('match_date', { ascending: true })
+        .limit(3)
+      setNextMatches(matchesData || [])
+
       setLoading(false)
     }
 
@@ -61,6 +82,7 @@ export default function Dashboard() {
   const handleLogout = async () => {
     if (supabase) {
       await supabase.auth.signOut()
+      showToast('Sesión cerrada', 'info')
       router.push('/login')
     }
   }
@@ -110,16 +132,36 @@ export default function Dashboard() {
           {/* Tabs */}
           <TabNavigation tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
+
           {/* Leaderboard */}
           {loading ? (
             <div className="bg-white rounded-lg shadow-lg p-8 text-center">
               <p className="text-gray-500 text-lg">Cargando líderes...</p>
             </div>
           ) : (
-            <LeaderboardView
-              leaders={getCurrentLeaders}
-              title={`Líderes ${activeTab}`}
-            />
+            <>
+              <LeaderboardView
+                leaders={getCurrentLeaders}
+                title={`Líderes ${activeTab}`}
+              />
+
+              {/* Próximos partidos */}
+              <div className="mt-10 bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-xl font-bold text-[#001D4A] mb-4">⚽ Próximos partidos</h3>
+                {nextMatches.length === 0 ? (
+                  <p className="text-gray-500">No hay partidos próximos.</p>
+                ) : (
+                  <ul className="divide-y divide-gray-200">
+                    {nextMatches.map((m) => (
+                      <li key={m.id} className="py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                        <span className="font-semibold text-[#001D4A]">{m.home_team} vs {m.away_team}</span>
+                        <span className="text-gray-600 text-sm">{new Date(m.match_date).toLocaleString()}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </>
           )}
 
           {/* Info Section */}

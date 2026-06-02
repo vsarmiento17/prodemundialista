@@ -20,7 +20,14 @@ export function LeaderboardView({ leaders, title }: { leaders: Leader[]; title: 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       <div className="bg-gradient-to-r from-[#001D4A] to-[#00A3E0] p-6">
-        <h2 className="text-2xl font-bold text-white">{title}</h2>
+        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          {title}
+          {leaders && leaders.length > 0 && (
+            <span className="ml-4 flex items-center gap-1 bg-[#FFD700] text-[#001D4A] px-3 py-1 rounded-full font-bold animate-pulse-slow">
+              🥇 Líder actual: {leaders[0].display_name || leaders[0].email.split('@')[0]}
+            </span>
+          )}
+        </h2>
       </div>
 
       <div className="overflow-x-auto">
@@ -38,17 +45,20 @@ export function LeaderboardView({ leaders, title }: { leaders: Leader[]; title: 
                 <tr
                   key={user.id}
                   className={`border-b transition-colors ${
-                    index < 3 ? 'bg-blue-50' : 'hover:bg-gray-50'
+                    index === 0 ? 'bg-yellow-100' : index < 3 ? 'bg-blue-50' : 'hover:bg-gray-50'
                   }`}
                 >
                   <td className="p-4 text-center font-bold text-2xl">
                     {getMedalIcon(index + 1)}
                   </td>
                   <td className="p-4">
-                    <div>
+                    <div className="flex items-center gap-2">
                       <p className="font-semibold text-[#001D4A]">{user.display_name || user.email.split('@')[0]}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
+                      {index === 0 && (
+                        <span className="bg-[#FFD700] text-[#001D4A] px-2 py-1 rounded-full text-xs font-bold ml-2">Líder</span>
+                      )}
                     </div>
+                    <p className="text-sm text-gray-500">{user.email}</p>
                   </td>
                   <td className="p-4 text-right">
                     <span className="inline-block bg-[#00A3E0] text-white px-4 py-2 rounded-full font-bold">

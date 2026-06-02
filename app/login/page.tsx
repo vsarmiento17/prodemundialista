@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useToast } from '../components/ToastProvider'
 import { useRouter } from 'next/navigation'
 import { getSupabase } from '@/app/lib/supabase'
 
@@ -9,6 +10,7 @@ export const dynamic = 'force-dynamic'
 export default function LoginPage() {
   const router = useRouter()
   const supabase = getSupabase()
+  const { showToast } = useToast()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,18 +26,21 @@ export default function LoginPage() {
     // Validar dominio
     if (!email.endsWith('@millicom.com')) {
       setError('Solo correos @millicom.com permitidos')
+      showToast('Solo correos @millicom.com permitidos', 'error')
       setLoading(false)
       return
     }
 
     if (!password || password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres')
+      showToast('La contraseña debe tener al menos 6 caracteres', 'error')
       setLoading(false)
       return
     }
 
     if (!supabase) {
       setError('Supabase no está configurado')
+      showToast('Supabase no está configurado', 'error')
       setLoading(false)
       return
     }
@@ -51,22 +56,29 @@ export default function LoginPage() {
           // Usuario no existe, sugerir signup
           setMode('signup')
           setError('Usuario no encontrado. Regístrate primero.')
+          showToast('Usuario no encontrado. Regístrate primero.', 'info')
           setLoading(false)
           return
         }
       } else {
         // Sign Up
         result = await supabase.auth.signUp({ email, password })
+        if (!result.error) {
+          showToast('Registro exitoso. Ahora puedes iniciar sesión.', 'success')
+        }
       }
 
       if (result.error) {
         setError(result.error.message)
+        showToast(result.error.message, 'error')
       } else if (result.data.user) {
         // Login exitoso
+        showToast('¡Bienvenido! Acceso exitoso.', 'success')
         router.push('/dashboard')
       }
     } catch (err) {
       setError('Error de conexión. Intenta de nuevo.')
+      showToast('Error de conexión. Intenta de nuevo.', 'error')
     } finally {
       setLoading(false)
     }

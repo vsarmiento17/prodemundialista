@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   },
 }
 
+
+import Link from 'next/link'
+import { ToastProvider } from './components/ToastProvider'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +42,17 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#001D4A" />
       </head>
-      <body className="min-h-full flex flex-col bg-gray-50">{children}</body>
+      <body className="min-h-full flex flex-col bg-gray-50">
+        <ToastProvider>
+          <nav className="w-full bg-[#001D4A] text-white shadow-lg">
+            <div className="max-w-7xl mx-auto px-6 py-4 flex gap-6 items-center">
+              <Link href="/dashboard" className="font-bold text-lg hover:text-[#00A3E0] transition">🏆 Dashboard</Link>
+              <Link href="/matches" className="font-bold text-lg hover:text-[#00A3E0] transition">⚽ Partidos & Pronósticos</Link>
+            </div>
+          </nav>
+          <main className="flex-1">{children}</main>
+        </ToastProvider>
+      </body>
     </html>
   )
 }
